@@ -3,14 +3,17 @@ import configparser
 
 # CONFIG
 config = configparser.ConfigParser()
-config.read(open('dwh.cfg'))
+config.read('dwh.cfg')
+
+iam_role = config['IAM_ROLE']['ARN']
+json = config['S3']['LOG_JSONPATH']
 
 # DROP TABLES
 
 staging_events_table_drop = "DROP TABLE IF EXISTS staging_events"
 staging_songs_table_drop = "DROP TABLE IF EXISTS staging_songs"
 songplay_table_drop = "DROP TABLE IF EXISTS songplay"
-user_table_drop = "DROP TABLE IF EXISTS user"
+user_table_drop = "DROP TABLE IF EXISTS user_table"
 song_table_drop = "DROP TABLE IF EXISTS song"
 artist_table_drop = "DROP TABLE IF EXISTS artist"
 time_table_drop = "DROP TABLE IF EXISTS time"
@@ -19,7 +22,7 @@ time_table_drop = "DROP TABLE IF EXISTS time"
 
 staging_events_table_create= ("""
 CREATE TABLE IF NOT EXISTS staging_events (
-    artist VARCHAR(100),
+    artist VARCHAR(1000),
     auth VARCHAR(100),
     firstName VARCHAR(100),
     gender VARCHAR(100),
@@ -32,25 +35,25 @@ CREATE TABLE IF NOT EXISTS staging_events (
     page VARCHAR(100),
     registration VARCHAR(100),
     sessionId INTEGER,
-    song VARCHAR(100),
+    song VARCHAR(1000),
     status VARCHAR(100),
     ts VARCHAR(100),
     userAgent VARCHAR(250),
     userId INTEGER,
-    PRIMARY KEY(registration, ts))
+    PRIMARY KEY(sessionId, ts))
     DISTSTYLE ALL;
 """)
 
 staging_songs_table_create = ("""
 CREATE TABLE IF NOT EXISTS staging_songs (
-    song_id INTEGER,
+    song_id VARCHAR(100),
     num_songs VARCHAR(100),
-    title VARCHAR(100),
+    title VARCHAR(1000),
     artist_name VARCHAR(100),
     artist_latitude VARCHAR(100),
     year VARCHAR(100),
     duration VARCHAR(100),
-    artist_id INTEGER,
+    artist_id VARCHAR(100),
     artist_longitude VARCHAR(100),
     artist_location VARCHAR(100),
     PRIMARY KEY(song_id, artist_id))
@@ -73,7 +76,7 @@ CREATE TABLE IF NOT EXISTS songplay (
 """)
 
 user_table_create = ("""
-CREATE TABLE IF NOT EXISTS user (
+CREATE TABLE IF NOT EXISTS user_table (
     user_id INTEGER,
     first_name VARCHAR(100),
     last_name VARCHAR(100),
@@ -86,7 +89,7 @@ CREATE TABLE IF NOT EXISTS user (
 song_table_create = ("""
 CREATE TABLE IF NOT EXISTS song (
     song_id INTEGER,
-    title VARCHAR(100),
+    title VARCHAR(1000),
     artist_id INTEGER,
     year VARCHAR(100),
     duration VARCHAR(100),
@@ -122,15 +125,17 @@ CREATE TABLE IF NOT EXISTS time (
 
 staging_events_copy = ("""
     copy staging_events from 's3://udacity-dend/log_data'
-    credentials 'aws_iam_role={}'
-    json {}
-""").format(ARN, LOG_JSONPATH)
+    IAM_ROLE {}
+    format as json {}
+    region 'us-west-2';
+""").format(iam_role, json)
 
 staging_songs_copy = ("""
     copy staging_songs from 's3://udacity-dend/song_data'
-    credentials 'aws_iam_role={}'
-    json {}
-""").format()
+    IAM_ROLE {}
+    json 'auto'
+    region 'us-west-2';
+""").format(iam_role)
 
 # FINAL TABLES
 
