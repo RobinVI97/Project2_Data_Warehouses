@@ -49,7 +49,7 @@ CREATE TABLE IF NOT EXISTS staging_songs (
     song_id VARCHAR(100),
     num_songs INTEGER,
     title VARCHAR(1000),
-    artist_name VARCHAR(100),
+    artist_name VARCHAR(1000),
     artist_latitude VARCHAR(100),
     year INTEGER,
     duration float,
@@ -62,15 +62,15 @@ CREATE TABLE IF NOT EXISTS staging_songs (
 
 songplay_table_create = ("""
 CREATE TABLE IF NOT EXISTS songplay (
-    songplay_id INTEGER NOT NULL,
+    songplay_id VARCHAR(1000) NOT NULL,
     start_time TIMESTAMP,
     user_id INTEGER,
-    level VARCHAR(100),
-    song_id VARCHAR(100),
-    artist_id VARCHAR(100),
+    level VARCHAR(1000),
+    song_id VARCHAR(1000),
+    artist_id VARCHAR(1000),
     session_id INTEGER,
-    location VARCHAR(100),
-    user_agent VARCHAR(100),
+    location VARCHAR(1000),
+    user_agent VARCHAR(1000),
     PRIMARY KEY(songplay_id))
     DISTSTYLE ALL;
 """)
@@ -101,7 +101,7 @@ artist_table_create = ("""
 CREATE TABLE IF NOT EXISTS artist (
     artist_id VARCHAR(100) NOT NULL,
     name VARCHAR(100),
-    location INTEGER,
+    location VARCHAR(1000),
     latitude VARCHAR(100),
     longitude VARCHAR(100),
     PRIMARY KEY(artist_id))
@@ -131,9 +131,9 @@ staging_events_copy = ("""
 """).format(iam_role, json)
 
 staging_songs_copy = ("""
-    copy staging_songs from 's3://udacity-dend/song_data'
+    copy staging_songs from 's3://udacity-dend/song_data/A/A/A'
     IAM_ROLE {}
-    json 'auto'
+    json 'auto ignorecase'
     region 'us-west-2';
 """).format(iam_role)
 
@@ -165,6 +165,7 @@ user_table_insert = ("""
     INSERT INTO user_table (
         SELECT distinct userid, firstname, lastname, gender, level
         FROM staging_events
+        where userid is not null
         )
 """)
 
