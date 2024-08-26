@@ -1,3 +1,5 @@
+"""Define all tables which can be used in Redshift and are being called by the other functions."""
+
 import configparser
 
 
