@@ -2,20 +2,20 @@ import configparser
 import psycopg2
 from sql_queries import create_table_queries, drop_table_queries
 
-"""Drop the existing tables when available."""
 def drop_tables(cur, conn):
+    """Drop the existing tables if available."""
     for query in drop_table_queries:
         cur.execute(query)
         conn.commit()
 
-"""Recreate the various tables."""
 def create_tables(cur, conn):
+    """Recreate the various tables."""
     for query in create_table_queries:
         cur.execute(query)
         conn.commit()
 
-"""Connect with the Cluster and call the drop/create functions."""
 def main():
+    """Connect with the Cluster and call the drop/create functions."""
     config = configparser.ConfigParser()
     config.read('dwh.cfg')
 
@@ -26,7 +26,6 @@ def main():
     create_tables(cur, conn)
 
     conn.close()
-
 
 if __name__ == "__main__":
     main()
