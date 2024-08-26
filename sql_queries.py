@@ -7,6 +7,8 @@ config.read('dwh.cfg')
 
 iam_role = config['IAM_ROLE']['ARN']
 json = config['S3']['LOG_JSONPATH']
+log_data = config['S3']['LOG_DATA']
+song_data = config['S3']['SONG_DATA']
 
 # DROP TABLES
 
@@ -124,18 +126,18 @@ CREATE TABLE IF NOT EXISTS time (
 # STAGING TABLES
 
 staging_events_copy = ("""
-    copy staging_events from 's3://udacity-dend/log_data'
+    copy staging_events from {}
     IAM_ROLE {}
     format as json {}
     region 'us-west-2';
-""").format(iam_role, json)
+""").format(log_data, iam_role, json)
 
 staging_songs_copy = ("""
-    copy staging_songs from 's3://udacity-dend/song_data/A/A/A'
+    copy staging_songs from {}
     IAM_ROLE {}
     json 'auto ignorecase'
     region 'us-west-2';
-""").format(iam_role)
+""").format(song_data, iam_role)
 
 # FINAL TABLES
 
