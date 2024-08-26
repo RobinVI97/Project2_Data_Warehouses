@@ -1,3 +1,5 @@
+"""ETL Step which extracts data from S3 to Redshift and transforms data for analytical purposes."""
+
 import configparser
 import psycopg2
 from sql_queries import copy_table_queries, insert_table_queries
